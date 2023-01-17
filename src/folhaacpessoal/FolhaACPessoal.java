@@ -8,7 +8,6 @@ import Consulta.FolhaAcCons;
 import Consulta.RegistroContabilCons;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,7 +17,6 @@ import model.C5Registro2;
 import model.C5Registro3;
 import model.RegistroContabil;
 import model.RegistroFolhaAc;
-import sun.misc.FileURLMapper;
 import util.FileUtils;
 
 /**
@@ -46,7 +44,7 @@ public class FolhaACPessoal {
                 lancamentos.add(lancamento);
             }
         }
-        FileWriter fw = FileUtils.abreArquivoGerar("", "teste.txt", false);
+        FileWriter fw = FileUtils.abreArquivoGerar("/home/claylson", "teste.txt", false);
         FileUtils.inserirConteudoLancto(fw, lancamentos);
         FileUtils.fechaArquivoGerado(fw);
 
