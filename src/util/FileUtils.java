@@ -31,11 +31,11 @@ import model.C5Registro3;
  */
 public class FileUtils implements Serializable {
 
-    public static FileWriter abreArquivoGerar(String pathDiretorio, String nomeArquivo, boolean adiciona) {
+    public static FileWriter abreArquivoGerar(String fileCompleto, boolean adiciona) {
 
         try {
-            File diretorio = diretorioDoArquivo(pathDiretorio);
-            return new FileWriter(diretorio.getAbsolutePath() + File.separator + nomeArquivo, adiciona);
+            File file = new File(fileCompleto);
+            return new FileWriter(file, adiciona);
 
         } catch (IOException ex) {
             Logger.getLogger(FileUtils.class.getName()).log(Level.SEVERE, "Falha ao Criar arquivo", ex);

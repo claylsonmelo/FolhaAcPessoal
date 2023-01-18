@@ -13,20 +13,21 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author claylson
  */
-public class TableModel extends AbstractTableModel {
+public class TableModelRegistros extends AbstractTableModel {
 
     private List<RegistrosTable> registros;
  private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     private final int COLUNA_EMPRESA = 0;
     private final int COLUNA_CODIGO = 1;
-    private final int COLUNA_NOME = 2;
-    private final int COLUNA_VALOR = 3;
-    private final int COLUNA_CTDEBITO = 4;
-    private final int COLUNA_CTCREDITO = 5;
+     private final int COLUNA_TIPO = 2;
+    private final int COLUNA_HISTORICO = 3;
+    private final int COLUNA_VALOR = 4;
+    private final int COLUNA_CTDEBITO = 5;
+    private final int COLUNA_CTCREDITO = 6;
 
-    private final String[] colunas = {"Empresa", "Código", "Nome", "Valor", "Débito", "Crédito"};
+    private final String[] colunas = {"Empresa", "Código","Tipo", "Histórico", "Valor", "Débito", "Crédito"};
 
-    public TableModel(List<RegistrosTable> registros) {
+    public TableModelRegistros(List<RegistrosTable> registros) {
         this.registros = registros;
     }
 
@@ -51,11 +52,13 @@ public class TableModel extends AbstractTableModel {
             case COLUNA_CODIGO:
                 row = registroTable.getCodigo();
                 break;
-            case COLUNA_NOME:
-                row = registroTable.getNome();
+            case COLUNA_TIPO:
+                row = registroTable.getTipo();
+                break;
+            case COLUNA_HISTORICO:
+                row = registroTable.getHistorico();
                 break;
             case COLUNA_VALOR:
-                
                 row = brazilianFormat.format(registroTable.getValor());
                 break;
             case COLUNA_CTDEBITO:

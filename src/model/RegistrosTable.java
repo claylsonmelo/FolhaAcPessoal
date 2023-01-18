@@ -13,7 +13,8 @@ import java.io.Serializable;
 public class RegistrosTable implements Serializable {
     private String empresa;
     private String codigo;
-    private String nome;
+    private String tipo;
+    private String historico;
     private Double valor;
     private String contaDebito;
     private String contaCredito;
@@ -26,13 +27,15 @@ public class RegistrosTable implements Serializable {
         this.codigo = codigo;
     }
 
-    public String getNome() {
-        return nome;
+    public String getHistorico() {
+        return historico;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setHistorico(String historico) {
+        this.historico = historico;
     }
+
+   
 
     public Double getValor() {
         return valor;
@@ -64,6 +67,14 @@ public class RegistrosTable implements Serializable {
 
     public void setEmpresa(String empresa) {
         this.empresa = empresa;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
     
     

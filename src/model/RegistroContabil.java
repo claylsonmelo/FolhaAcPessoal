@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 public class RegistroContabil implements Serializable {
     private String codigo;
+    private String tipo;
     private String contaDebito;
     private String contaCredito;
     private String historico;
@@ -47,6 +48,14 @@ public class RegistroContabil implements Serializable {
 
     public void setContaCredito(String contaCredito) {
         this.contaCredito = contaCredito;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
     
     

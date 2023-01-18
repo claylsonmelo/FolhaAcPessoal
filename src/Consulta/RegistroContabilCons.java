@@ -35,9 +35,10 @@ public class RegistroContabilCons implements Serializable {
         String[] linhaSplit = linha.split("\\|");
         RegistroContabil registro = new RegistroContabil();
         registro.setCodigo(linhaSplit[0]);
-        registro.setContaDebito(linhaSplit[1]);
-        registro.setContaCredito(linhaSplit[2]);
-        registro.setHistorico(removerAcentos(linhaSplit[3]));
+        registro.setTipo(linhaSplit[1]);
+        registro.setContaDebito(linhaSplit[2]);
+        registro.setContaCredito(linhaSplit[3]);
+        registro.setHistorico(removerAcentos(linhaSplit[4]));
         return registro;
 
     }
