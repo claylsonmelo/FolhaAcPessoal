@@ -30,7 +30,7 @@ public class ExportaLctoFolhaBean implements Serializable {
     private static List<RegistroFolhaAc> registrosAc;
     private static List<RegistroContabil> registrosContabeis;
 
-    public List<RegistrosTable> tableModel(String competencia) {
+    public List<RegistrosTable> tableModelRegistro(String competencia) {
         List<RegistrosTable> registros = new ArrayList<>();
         FolhaAcCons cons = new FolhaAcCons();
         registrosAc = cons.registros(competencia);
@@ -40,7 +40,7 @@ public class ExportaLctoFolhaBean implements Serializable {
             for (RegistroContabil regCont : registrosContabeis) {
                 if (regCont.getCodigo().equals(regAc.getCodigo()) && regCont.getTipo().equals(regAc.getTipo())) {
                     RegistrosTable regTable = new RegistrosTable();
-                    regTable.setEmpresa(regAc.getEmpresa().toString());
+                    regTable.setEmpresa(regAc.getEmpresa());
                     regTable.setCodigo(regCont.getCodigo());
                     regTable.setTipo(regCont.getTipo());
                     regTable.setHistorico(regCont.getHistorico());
@@ -89,7 +89,7 @@ public class ExportaLctoFolhaBean implements Serializable {
         reg2D.setHistorico(regAc.getHistorico());
         C5Registro3 reg3 = new C5Registro3();
         reg3.setParametro("E");
-        reg3.setValorParametro(regAc.getEmpresa());
+        reg3.setValorParametro(regAc.getEmpresa().getNroErp().toString());
         reg2D.setRegistro3(reg3);
         lsReg2.add(reg2D);
         C5Registro2 reg2C = new C5Registro2();
@@ -99,7 +99,7 @@ public class ExportaLctoFolhaBean implements Serializable {
         reg2C.setHistorico(regAc.getHistorico());
         C5Registro3 reg3C = new C5Registro3();
         reg3C.setParametro("E");
-        reg3C.setValorParametro(regAc.getEmpresa());
+        reg3C.setValorParametro(regAc.getEmpresa().getNroErp().toString());
         reg2C.setRegistro3(reg3C);
         lsReg2.add(reg2C);
         reg1.setRegistro2(lsReg2);

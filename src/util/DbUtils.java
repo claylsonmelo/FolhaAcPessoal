@@ -28,9 +28,8 @@ public class DbUtils implements Serializable {
         Connection conn = null;
 
         try {
-
             conn = Firebird.getInstance().getConnection();
-            conn.setAutoCommit(false);
+            //conn.setAutoCommit(false);
 
         } catch (Exception ex) {
             Logger.getLogger(DbUtils.class.getName()).log(Level.SEVERE, null, ex);
@@ -167,7 +166,6 @@ public class DbUtils implements Serializable {
         ResultSet result = null;
 
         try {
-
             result = ps.executeQuery();
 
         } catch (SQLException e) {

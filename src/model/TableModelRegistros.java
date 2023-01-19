@@ -47,7 +47,7 @@ public class TableModelRegistros extends AbstractTableModel {
         Object row = null;
         switch (columnIndex) {
             case COLUNA_EMPRESA:
-                row = registroTable.getEmpresa();
+                row = registroTable.getEmpresa().getNome();
                 break;
             case COLUNA_CODIGO:
                 row = registroTable.getCodigo();

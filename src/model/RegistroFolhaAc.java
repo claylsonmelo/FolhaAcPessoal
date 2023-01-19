@@ -11,20 +11,21 @@ import java.io.Serializable;
  * @author claylson
  */
 public class RegistroFolhaAc implements Serializable {
-    private Integer empresa;
+    private Empresa empresa;
     private String tipo;
     private String codigo;
     private String nome;
     private String indProvDesc;
     private Double valor;
 
-    public Integer getEmpresa() {
+    public Empresa getEmpresa() {
         return empresa;
     }
 
-    public void setEmpresa(Integer empresa) {
+    public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
     }
+
 
     public String getTipo() {
         return tipo;

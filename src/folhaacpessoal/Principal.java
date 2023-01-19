@@ -4,6 +4,7 @@
  */
 package folhaacpessoal;
 
+import Consulta.RegistroContabilCons;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -29,6 +30,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.MaskFormatter;
+import model.Empresa;
 import model.RegistrosTable;
 import model.TableModelRegistros;
 
@@ -37,7 +39,7 @@ import model.TableModelRegistros;
  * @author claylson
  */
 public class Principal extends JFrame {
-    
+
     private JPanel painelFundo;
     private JPanel painelBotoes;
     private JPanel painelCarregar;
@@ -47,22 +49,22 @@ public class Principal extends JFrame {
     private JButton btExportSelec;
     private JButton btSelecTodos;
     private JButton btLocalizar;
-     private JButton btLimpar;
+    private JButton btLimpar;
     private JTextField textPathExportacao;
     private JFormattedTextField textCompetencia;
     private TableModelRegistros modelo;
     private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     ExportaLctoFolhaBean exportaBean = new ExportaLctoFolhaBean();
-    
+
     public Principal() {
         super("Arquivo Lançamento Folha Fortes X Consinco");
         criaJTable();
         criaJanela();
-        
+
     }
-    
+
     public void criaJanela() {
-        
+
         try {
             btCarregar = new JButton("Carregar");
             btCarregar.setEnabled(false);
@@ -137,8 +139,8 @@ public class Principal extends JFrame {
                     exportar();
                 }
             });
-            
-           btLimpar.addActionListener(new ActionListener() {
+
+            btLimpar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     textPathExportacao.setText("");
@@ -147,22 +149,22 @@ public class Principal extends JFrame {
                     btCarregar.setEnabled(false);
                     modelo.clearRow();
                 }
-           });
+            });
         } catch (ParseException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     private void criaJTable() {
         tabela = new JTable(modelo);
-        
+
     }
-    
+
     private void doCarregarTabela() {
         if (textCompetencia.getText().replace(" ", "").replace("/", "").length() == 6) {
             //Popula tabela
-            modelo = new TableModelRegistros(exportaBean.tableModel(textCompetencia.getText().replace("/", "")));
+            modelo = new TableModelRegistros(exportaBean.tableModelRegistro(textCompetencia.getText().replace("/", "")));
             tabela.setModel(modelo);
             //Ajusta largura colunas
             Dimension tableSize = tabela.getPreferredSize();
@@ -177,14 +179,17 @@ public class Principal extends JFrame {
             JOptionPane.showMessageDialog(null, "Campo Competência inválido!", "Atenção!", JOptionPane.WARNING_MESSAGE);
         }
     }
-    
+
     private void exportar() {
+
         int[] selectedRows = tabela.getSelectedRows();
         if (selectedRows.length > 0) {
+            RegistroContabilCons consCont = new RegistroContabilCons();
+            List<Empresa> empresas = consCont.empresas();
             List<RegistrosTable> regSelecionados = new ArrayList<>();
             for (int r = 0; r < selectedRows.length; r++) {
                 RegistrosTable regTabSel = new RegistrosTable();
-                regTabSel.setEmpresa(modelo.getValueAt(selectedRows[r], 0).toString());
+                regTabSel.setEmpresa(getNroEmpresaErp(empresas, modelo.getValueAt(selectedRows[r], 0).toString()));
                 regTabSel.setCodigo(modelo.getValueAt(selectedRows[r], 1).toString());
                 regTabSel.setTipo(modelo.getValueAt(selectedRows[r], 2).toString());
                 regTabSel.setHistorico(modelo.getValueAt(selectedRows[r], 3).toString());
@@ -203,9 +208,18 @@ public class Principal extends JFrame {
                 JOptionPane.showMessageDialog(null, "Não foi possível gerar o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
             }
         }
-        
+
     }
-    
+
+    private Empresa getNroEmpresaErp(List<Empresa> empresas, String nome) {
+        for (Empresa empresa : empresas) {
+            if (empresa.getNome().equals(nome)) {
+                return empresa;
+            }
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         Principal principal = new Principal();
         principal.setVisible(true);

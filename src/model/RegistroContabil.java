@@ -58,6 +58,4 @@ public class RegistroContabil implements Serializable {
         this.tipo = tipo;
     }
     
-    
-    
 }
