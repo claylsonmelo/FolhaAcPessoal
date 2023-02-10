@@ -55,6 +55,7 @@ public class Principal extends JFrame {
     private TableModelRegistros modelo;
     private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     ExportaLctoFolhaBean exportaBean = new ExportaLctoFolhaBean();
+   
 
     public Principal() {
         super("Arquivo Lançamento Folha Fortes X Consinco");
@@ -66,6 +67,7 @@ public class Principal extends JFrame {
     public void criaJanela() {
 
         try {
+            
             btCarregar = new JButton("Carregar");
             btCarregar.setEnabled(false);
             btExportSelec = new JButton("Exportar Selecionados");
@@ -93,6 +95,7 @@ public class Principal extends JFrame {
             painelBotoes.add(btSelecTodos);
             painelBotoes.add(btExportSelec);
             painelFundo.add(BorderLayout.SOUTH, painelBotoes);
+
             getContentPane().add(painelFundo);
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             setSize(1000, 600);

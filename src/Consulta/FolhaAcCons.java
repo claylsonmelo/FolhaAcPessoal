@@ -5,7 +5,6 @@
 package Consulta;
 
 import java.io.Serializable;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +20,7 @@ import util.DbUtils;
  */
 public class FolhaAcCons implements Serializable {
 
-    private static String SQL = "SELECT * FROM PROC_ITM_LISTALCTOFOLHAC5(?,?)";
+    private static String SQL = "SELECT * FROM PROC_ITM_LISTALCTOFOLHAC5(?,?) WHERE tipo IS NOT NULL AND codigo IS NOT null ORDER BY empresa, tipo";
 
     public List<RegistroFolhaAc> registros(String competencia) {
         List<RegistroFolhaAc> listaReg = new ArrayList<>();

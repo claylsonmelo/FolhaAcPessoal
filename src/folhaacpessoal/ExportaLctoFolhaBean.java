@@ -38,7 +38,7 @@ public class ExportaLctoFolhaBean implements Serializable {
         registrosContabeis = regCons.registrosContabeis();
         for (RegistroFolhaAc regAc : registrosAc) {
             for (RegistroContabil regCont : registrosContabeis) {
-                if (regCont.getCodigo().equals(regAc.getCodigo()) && regCont.getTipo().equals(regAc.getTipo())) {
+                if (regCont.getCodigo().trim().equals(regAc.getCodigo().trim()) && regCont.getTipo().trim().equals(regAc.getTipo().trim())) {
                     RegistrosTable regTable = new RegistrosTable();
                     regTable.setEmpresa(regAc.getEmpresa());
                     regTable.setCodigo(regCont.getCodigo());
