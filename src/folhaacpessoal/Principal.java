@@ -14,7 +14,13 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -39,7 +45,7 @@ import model.TableModelRegistros;
  * @author claylson
  */
 public class Principal extends JFrame {
-
+    
     private JPanel painelFundo;
     private JPanel painelBotoes;
     private JPanel painelCarregar;
@@ -51,21 +57,20 @@ public class Principal extends JFrame {
     private JButton btLocalizar;
     private JButton btLimpar;
     private JTextField textPathExportacao;
-    private JFormattedTextField textCompetencia;
+    private JFormattedTextField textDtaLancto;
     private TableModelRegistros modelo;
     private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     ExportaLctoFolhaBean exportaBean = new ExportaLctoFolhaBean();
-   
-
+    
     public Principal() {
         super("Arquivo Lançamento Folha Fortes X Consinco");
         criaJTable();
         criaJanela();
-
+        
     }
-
+    
     public void criaJanela() {
-
+        
         try {
             
             btCarregar = new JButton("Carregar");
@@ -75,10 +80,10 @@ public class Principal extends JFrame {
             btLocalizar = new JButton("Localizar");
             btLimpar = new JButton("Limpar");
             textPathExportacao = new JTextField(20);
-            textCompetencia = new JFormattedTextField(new MaskFormatter("####/##"));
-            textCompetencia.setColumns(5);
-            textCompetencia.setFont(textCompetencia.getFont().deriveFont(16F));
-            textCompetencia.setEnabled(false);
+            textDtaLancto = new JFormattedTextField(new MaskFormatter("##/##/####"));
+            textDtaLancto.setColumns(7);
+            textDtaLancto.setFont(textDtaLancto.getFont().deriveFont(16F));
+            textDtaLancto.setEnabled(false);
             textPathExportacao.setFont(textPathExportacao.getFont().deriveFont(16F));
             painelBotoes = new JPanel();
             painelFundo = new JPanel();
@@ -87,7 +92,7 @@ public class Principal extends JFrame {
             painelCarregar = new JPanel(new FlowLayout(FlowLayout.LEFT));
             painelCarregar.add(textPathExportacao);
             painelCarregar.add(btLocalizar);
-            painelCarregar.add(textCompetencia);
+            painelCarregar.add(textDtaLancto);
             painelCarregar.add(btCarregar);
             painelCarregar.add(btLimpar);
             painelFundo.add(BorderLayout.NORTH, painelCarregar);
@@ -95,7 +100,7 @@ public class Principal extends JFrame {
             painelBotoes.add(btSelecTodos);
             painelBotoes.add(btExportSelec);
             painelFundo.add(BorderLayout.SOUTH, painelBotoes);
-
+            
             getContentPane().add(painelFundo);
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             setSize(1000, 600);
@@ -115,7 +120,7 @@ public class Principal extends JFrame {
                             textPathExportacao.setText(file.getCanonicalPath() + ".CSV");
                             textPathExportacao.setEditable(false);
                             btCarregar.setEnabled(true);
-                            textCompetencia.setEnabled(true);
+                            textDtaLancto.setEnabled(true);
                         } catch (IOException ex) {
                             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -142,13 +147,13 @@ public class Principal extends JFrame {
                     exportar();
                 }
             });
-
+            
             btLimpar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     textPathExportacao.setText("");
-                    textCompetencia.setText("");
-                    textCompetencia.setEnabled(false);
+                    textDtaLancto.setText("");
+                    textDtaLancto.setEnabled(false);
                     btCarregar.setEnabled(false);
                     modelo.clearRow();
                 }
@@ -156,18 +161,19 @@ public class Principal extends JFrame {
         } catch (ParseException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
-
+    
     private void criaJTable() {
         tabela = new JTable(modelo);
-
+        
     }
-
+    
     private void doCarregarTabela() {
-        if (textCompetencia.getText().replace(" ", "").replace("/", "").length() == 6) {
+        Date datComp = dtaLanctoToDate();
+        if (null != datComp && datComp.before(new Date())) {
             //Popula tabela
-            modelo = new TableModelRegistros(exportaBean.tableModelRegistro(textCompetencia.getText().replace("/", "")));
+            modelo = new TableModelRegistros(exportaBean.tableModelRegistro(datComp));
             tabela.setModel(modelo);
             //Ajusta largura colunas
             Dimension tableSize = tabela.getPreferredSize();
@@ -178,13 +184,43 @@ public class Principal extends JFrame {
             tabela.getColumn("Crédito").setPreferredWidth(50);
             tabela.getColumn("Histórico").setPreferredWidth(Math.round((tableSize.width - 250) * 0.80f));
             tabela.getColumn("Valor").setPreferredWidth(Math.round((tableSize.width - 250) * 0.20f));
+            btCarregar.setEnabled(false);
+            textDtaLancto.setEnabled(false);
         } else {
-            JOptionPane.showMessageDialog(null, "Campo Competência inválido!", "Atenção!", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Campo Data Lancto inválido!", "Atenção!", JOptionPane.WARNING_MESSAGE);
         }
     }
-
+    
+    private Date dtaLanctoToDate() {
+        if (!"".equals(textDtaLancto.getText().trim().replace("/", ""))) {
+            try {
+                if (isDateValid(textDtaLancto.getText())) {
+                    SimpleDateFormat formatToDate = new SimpleDateFormat("dd/MM/yyyy");
+                    return formatToDate.parse(textDtaLancto.getText());
+                }
+            } catch (ParseException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return null;
+    }
+    
+    public static boolean isDateValid(String strDate) {
+        String dateFormat = "dd/MM/uuuu";
+        
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+                .ofPattern(dateFormat)
+                .withResolverStyle(ResolverStyle.STRICT);
+        try {
+            LocalDate date = LocalDate.parse(strDate, dateTimeFormatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+    
     private void exportar() {
-
+        
         int[] selectedRows = tabela.getSelectedRows();
         if (selectedRows.length > 0) {
             RegistroContabilCons consCont = new RegistroContabilCons();
@@ -204,16 +240,16 @@ public class Principal extends JFrame {
                 regTabSel.setContaCredito(modelo.getValueAt(selectedRows[r], 6).toString());
                 regSelecionados.add(regTabSel);
             }
-            boolean success = exportaBean.exportaLayoutC5(regSelecionados, textPathExportacao.getText());
+            boolean success = exportaBean.exportaLayoutC5(regSelecionados, textPathExportacao.getText(), dtaLanctoToDate());
             if (success) {
                 JOptionPane.showMessageDialog(null, "Arquivo Gerado com sucesso!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "Não foi possível gerar o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
             }
         }
-
+        
     }
-
+    
     private Empresa getNroEmpresaErp(List<Empresa> empresas, String nome) {
         for (Empresa empresa : empresas) {
             if (empresa.getNome().equals(nome)) {
@@ -222,7 +258,7 @@ public class Principal extends JFrame {
         }
         return null;
     }
-
+    
     public static void main(String[] args) {
         Principal principal = new Principal();
         principal.setVisible(true);

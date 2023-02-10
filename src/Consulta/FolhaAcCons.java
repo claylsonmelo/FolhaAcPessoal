@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import model.Empresa;
 import model.RegistroFolhaAc;
@@ -22,14 +24,14 @@ public class FolhaAcCons implements Serializable {
 
     private static String SQL = "SELECT * FROM PROC_ITM_LISTALCTOFOLHAC5(?,?) WHERE tipo IS NOT NULL AND codigo IS NOT null ORDER BY empresa, tipo";
 
-    public List<RegistroFolhaAc> registros(String competencia) {
+    public List<RegistroFolhaAc> registros(Date competencia) {
         List<RegistroFolhaAc> listaReg = new ArrayList<>();
         RegistroContabilCons cons = new RegistroContabilCons();
         List<Empresa> empresas = cons.empresas();
         if (!empresas.isEmpty()) {
             Connection conn = DbUtils.createConnection();
             for (Empresa empresa : empresas) {
-                listaReg.addAll(registrosPorEmpresa(conn, competencia, empresa));
+                listaReg.addAll(registrosPorEmpresa(conn, dateToCompetencia(competencia), empresa));
             }
             DbUtils.closeConnection(conn);
         }
@@ -61,4 +63,9 @@ public class FolhaAcCons implements Serializable {
         return rf;
     }
 
+     private String dateToCompetencia(Date datLancto) {
+        SimpleDateFormat formatToStr = new SimpleDateFormat("yyyyMM");
+        return formatToStr.format(datLancto);
+    }
+    
 }

@@ -30,7 +30,7 @@ public class ExportaLctoFolhaBean implements Serializable {
     private static List<RegistroFolhaAc> registrosAc;
     private static List<RegistroContabil> registrosContabeis;
 
-    public List<RegistrosTable> tableModelRegistro(String competencia) {
+    public List<RegistrosTable> tableModelRegistro(Date competencia) {
         List<RegistrosTable> registros = new ArrayList<>();
         FolhaAcCons cons = new FolhaAcCons();
         registrosAc = cons.registros(competencia);
@@ -54,11 +54,11 @@ public class ExportaLctoFolhaBean implements Serializable {
         return registros;
     }
 
-    public boolean exportaLayoutC5(List<RegistrosTable> registrosExp, String nomeArquivo) {
+    public boolean exportaLayoutC5(List<RegistrosTable> registrosExp, String nomeArquivo, Date dtaLancto) {
         List<C5Registro1> lancamentos = new ArrayList<>();
         boolean succes = false;
         for (RegistrosTable regAc : registrosExp) {
-            C5Registro1 lancamento = c5Registro1Completo(regAc);
+            C5Registro1 lancamento = c5Registro1Completo(regAc, dtaLancto);
             if (null != lancamento) {
                 lancamentos.add(lancamento);
             }
@@ -72,10 +72,10 @@ public class ExportaLctoFolhaBean implements Serializable {
         return succes;
     }
 
-    private static C5Registro1 c5Registro1Completo(RegistrosTable regAc) {
+    private static C5Registro1 c5Registro1Completo(RegistrosTable regAc, Date dtaLancto) {
         C5Registro1 reg1 = new C5Registro1();
         reg1.setNroEmpresaMatriz(2);
-        reg1.setDataLancamento(dateToStr(new Date()));
+        reg1.setDataLancamento(dateToStr(dtaLancto));
         reg1.setNroLoteContabil(910);
         reg1.setNroLancamento(null);
         reg1.setIndExtemporaneo("N");
@@ -116,6 +116,8 @@ public class ExportaLctoFolhaBean implements Serializable {
     private static String DoubleToMoeda(Double d) {
         String formatado = new DecimalFormat("#.00").format(d);
         return formatado;
-
     }
+
+
+   
 }
