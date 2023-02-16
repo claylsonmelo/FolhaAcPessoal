@@ -16,16 +16,16 @@ import javax.swing.table.AbstractTableModel;
 public class TableModelRegistros extends AbstractTableModel {
 
     private List<RegistrosTable> registros;
- private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+    private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     private final int COLUNA_EMPRESA = 0;
     private final int COLUNA_CODIGO = 1;
-     private final int COLUNA_TIPO = 2;
+    private final int COLUNA_TIPO = 2;
     private final int COLUNA_HISTORICO = 3;
     private final int COLUNA_VALOR = 4;
     private final int COLUNA_CTDEBITO = 5;
     private final int COLUNA_CTCREDITO = 6;
 
-    private final String[] colunas = {"Empresa", "Código","Tipo", "Histórico", "Valor", "Débito", "Crédito"};
+    private final String[] colunas = {"Empresa", "Código", "Tipo", "Histórico", "Valor", "Débito", "Crédito"};
 
     public TableModelRegistros(List<RegistrosTable> registros) {
         this.registros = registros;
@@ -79,11 +79,14 @@ public class TableModelRegistros extends AbstractTableModel {
     public String getColumnName(int col) {
         return colunas[col];
     }
-    
+
     public void clearRow() {
         registros.clear();
         fireTableDataChanged();
     }
-    
-    
+
+    public void removeRow(int rowIndex) {
+        registros.remove(rowIndex);
+        fireTableRowsDeleted(rowIndex, rowIndex);
+    }
 }

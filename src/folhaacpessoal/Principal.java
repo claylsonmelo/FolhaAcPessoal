@@ -45,7 +45,7 @@ import model.TableModelRegistros;
  * @author claylson
  */
 public class Principal extends JFrame {
-    
+
     private JPanel painelFundo;
     private JPanel painelBotoes;
     private JPanel painelCarregar;
@@ -53,6 +53,7 @@ public class Principal extends JFrame {
     private JScrollPane barraRolagem;
     private JButton btCarregar;
     private JButton btExportSelec;
+    private JButton btExcluirSelec;
     private JButton btSelecTodos;
     private JButton btLocalizar;
     private JButton btLimpar;
@@ -61,26 +62,27 @@ public class Principal extends JFrame {
     private TableModelRegistros modelo;
     private static final NumberFormat brazilianFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     ExportaLctoFolhaBean exportaBean = new ExportaLctoFolhaBean();
-    
+
     public Principal() {
         super("Arquivo Lançamento Folha Fortes X Consinco");
         criaJTable();
         criaJanela();
-        
+
     }
-    
+
     public void criaJanela() {
-        
+
         try {
-            
+
             btCarregar = new JButton("Carregar");
             btCarregar.setEnabled(false);
             btExportSelec = new JButton("Exportar Selecionados");
+            btExcluirSelec = new JButton("Excluir Selecionados");
             btSelecTodos = new JButton("Seleciona Todos");
             btLocalizar = new JButton("Localizar");
             btLimpar = new JButton("Limpar");
             textPathExportacao = new JTextField(20);
-            textDtaLancto = new JFormattedTextField(new MaskFormatter("##/##/####"));
+            textDtaLancto = new JFormattedTextField(new MaskFormatter("##/##/##"));
             textDtaLancto.setColumns(7);
             textDtaLancto.setFont(textDtaLancto.getFont().deriveFont(16F));
             textDtaLancto.setEnabled(false);
@@ -99,8 +101,9 @@ public class Principal extends JFrame {
             painelFundo.add(BorderLayout.CENTER, barraRolagem);
             painelBotoes.add(btSelecTodos);
             painelBotoes.add(btExportSelec);
+            painelBotoes.add(btExcluirSelec);
             painelFundo.add(BorderLayout.SOUTH, painelBotoes);
-            
+
             getContentPane().add(painelFundo);
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             setSize(1000, 600);
@@ -144,10 +147,16 @@ public class Principal extends JFrame {
             btExportSelec.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    exportar();
+                    gerirTable("G");
                 }
             });
-            
+            btExcluirSelec.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gerirTable("E");
+                }
+            });
+
             btLimpar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -161,14 +170,14 @@ public class Principal extends JFrame {
         } catch (ParseException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     private void criaJTable() {
         tabela = new JTable(modelo);
-        
+
     }
-    
+
     private void doCarregarTabela() {
         Date datComp = dtaLanctoToDate();
         if (null != datComp && datComp.before(new Date())) {
@@ -190,12 +199,12 @@ public class Principal extends JFrame {
             JOptionPane.showMessageDialog(null, "Campo Data Lancto inválido!", "Atenção!", JOptionPane.WARNING_MESSAGE);
         }
     }
-    
+
     private Date dtaLanctoToDate() {
         if (!"".equals(textDtaLancto.getText().trim().replace("/", ""))) {
             try {
                 if (isDateValid(textDtaLancto.getText())) {
-                    SimpleDateFormat formatToDate = new SimpleDateFormat("dd/MM/yyyy");
+                    SimpleDateFormat formatToDate = new SimpleDateFormat("dd/MM/yy");
                     return formatToDate.parse(textDtaLancto.getText());
                 }
             } catch (ParseException ex) {
@@ -204,10 +213,10 @@ public class Principal extends JFrame {
         }
         return null;
     }
-    
+
     public static boolean isDateValid(String strDate) {
-        String dateFormat = "dd/MM/uuuu";
-        
+        String dateFormat = "dd/MM/uu";
+
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter
                 .ofPattern(dateFormat)
                 .withResolverStyle(ResolverStyle.STRICT);
@@ -218,38 +227,48 @@ public class Principal extends JFrame {
             return false;
         }
     }
-    
-    private void exportar() {
-        
+
+    private void gerirTable(String tipo) {
         int[] selectedRows = tabela.getSelectedRows();
         if (selectedRows.length > 0) {
-            RegistroContabilCons consCont = new RegistroContabilCons();
-            List<Empresa> empresas = consCont.empresas();
-            List<RegistrosTable> regSelecionados = new ArrayList<>();
-            for (int r = 0; r < selectedRows.length; r++) {
-                RegistrosTable regTabSel = new RegistrosTable();
-                regTabSel.setEmpresa(getNroEmpresaErp(empresas, modelo.getValueAt(selectedRows[r], 0).toString()));
-                regTabSel.setCodigo(modelo.getValueAt(selectedRows[r], 1).toString());
-                regTabSel.setTipo(modelo.getValueAt(selectedRows[r], 2).toString());
-                regTabSel.setHistorico(modelo.getValueAt(selectedRows[r], 3).toString());
-                regTabSel.setValor(Double.valueOf(modelo.getValueAt(selectedRows[r], 4).toString()
-                        .replace("R$ ", "")
-                        .replace(".", "")
-                        .replace(",", ".")));
-                regTabSel.setContaDebito(modelo.getValueAt(selectedRows[r], 5).toString());
-                regTabSel.setContaCredito(modelo.getValueAt(selectedRows[r], 6).toString());
-                regSelecionados.add(regTabSel);
-            }
-            boolean success = exportaBean.exportaLayoutC5(regSelecionados, textPathExportacao.getText(), dtaLanctoToDate());
-            if (success) {
-                JOptionPane.showMessageDialog(null, "Arquivo Gerado com sucesso!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            boolean success = false;
+            if ("E".equals(tipo)) {
+                for (int r = 0; r < selectedRows.length; r++) {
+                    modelo.removeRow(selectedRows[r]);
+                    System.out.println("row: "+selectedRows[r]);
+                    //Verificar Deleção não está sendo feito toda seleção
+                }
+                JOptionPane.showMessageDialog(null, "Registros Excluidos!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, "Não foi possível gerar o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
+                RegistroContabilCons consCont = new RegistroContabilCons();
+                List<Empresa> empresas = consCont.empresas();
+                List<RegistrosTable> regSelecionados = new ArrayList<>();
+                for (int r = 0; r < selectedRows.length; r++) {
+                    RegistrosTable regTabSel = new RegistrosTable();
+                    regTabSel.setEmpresa(getNroEmpresaErp(empresas, modelo.getValueAt(selectedRows[r], 0).toString()));
+                    regTabSel.setCodigo(modelo.getValueAt(selectedRows[r], 1).toString());
+                    regTabSel.setTipo(modelo.getValueAt(selectedRows[r], 2).toString());
+                    regTabSel.setHistorico(modelo.getValueAt(selectedRows[r], 3).toString());
+                    regTabSel.setValor(Double.valueOf(modelo.getValueAt(selectedRows[r], 4).toString()
+                            .replace("R$ ", "")
+                            .replace(".", "")
+                            .replace(",", ".")));
+                    regTabSel.setContaDebito(modelo.getValueAt(selectedRows[r], 5).toString());
+                    regTabSel.setContaCredito(modelo.getValueAt(selectedRows[r], 6).toString());
+                    regSelecionados.add(regTabSel);
+                }
+                success = exportaBean.exportaLayoutC5(regSelecionados, textPathExportacao.getText(), dtaLanctoToDate());
+                if (success) {
+                    JOptionPane.showMessageDialog(null, "Arquivo Gerado com sucesso!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Não foi possível gerar o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
+                }
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Selecione pelo menos um registro!", "Atenção!", JOptionPane.INFORMATION_MESSAGE);
         }
-        
     }
-    
+
     private Empresa getNroEmpresaErp(List<Empresa> empresas, String nome) {
         for (Empresa empresa : empresas) {
             if (empresa.getNome().equals(nome)) {
@@ -258,7 +277,7 @@ public class Principal extends JFrame {
         }
         return null;
     }
-    
+
     public static void main(String[] args) {
         Principal principal = new Principal();
         principal.setVisible(true);
